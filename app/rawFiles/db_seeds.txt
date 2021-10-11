@@ -1,0 +1,9 @@
+INSERT INTO `posts` (`id`, `user_id`, `title`, `body`, `status`, `category`, `created_at`, `updated_at`) 
+VALUES (NULL, '1', 'Title 1', 'Body for the title 1', 'active', 'organ donation', NULL, NULL);
+INSERT INTO `posts` (`id`, `user_id`, `title`, `body`, `status`, `category`, `created_at`, `updated_at`) 
+VALUES (NULL, '1', 'Title 2', 'Body for the title 2', 'active', 'body donation', NULL, NULL);
+INSERT INTO `posts` (`id`, `user_id`, `title`, `body`, `status`, `category`, `created_at`, `updated_at`) 
+VALUES (NULL, '1', 'Title 2', 'Body for the title 2', 'active', 'body donation', NULL, NULL);
+
+INSERT INTO `organ_donations` (`id`, `post_id`, `informer_id`, `informed_on`, `blood_group`, `description`, `agreement_accepted`, `additional_contact`, `status`, `method`, `agreement_link`, `hospital_certificate_link`, `hide_identity`, `additional_tests`, `created_at`, `updated_at`) 
+VALUES (NULL, '1', NULL, NULL, 'A+', 'sample sample sample', '1', 'sample ', 'active', 'organ', 'lsdajflk', 'sal;kdjfkla', '1', '1', NULL, NULL);
