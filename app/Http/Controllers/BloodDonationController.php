@@ -11,10 +11,8 @@ class BloodDonationController extends Controller
     public function create(Request $request)
     {
         $inputs = $request->validate([
-            'agreementForm' => 'required|file',
-            'hospitalForm' => 'required|file',
             'bloodGroup' => 'required|string',
-            'aditionalNumber' => 'required|string',
+            'aditionalNumber' => 'required|string|min:11',
             'description' => 'required|string',
         ]);
 
@@ -23,7 +21,7 @@ class BloodDonationController extends Controller
 
         $post = Post::create([
             'user_id' => $user->id,
-            'title' => 'Blood donation dontribution (' . $request['bloodGroup'] . ')',
+            'title' => 'Blood donation (' . $request['bloodGroup'] . ')',
             'body' => $postBody,
             'status' => 'pending',
             'category' => 'blood donation'

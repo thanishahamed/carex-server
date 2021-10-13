@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BloodDonationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 // use Cartalyst\Stripe\Stripe;
@@ -16,13 +17,14 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ShareController;
 use App\Http\Controllers\ViewController;
 use App\Http\Controllers\LikeController;
+use App\Models\BloodDonation;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
 //attach this fund route with a controller later
-Route::post('/fund', function(Request $request) {
+Route::post('/fund', function (Request $request) {
 
     try {
         $stripe = Stripe::charges()->create([
@@ -33,8 +35,7 @@ Route::post('/fund', function(Request $request) {
             'description' => 'Test Payment'
         ]);
         return response($stripe, 200);
-
-    }catch (Exception $e) {
+    } catch (Exception $e) {
         return response()->json($e->getMessage());
     }
 
@@ -71,14 +72,16 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/verified-user', [UserController::class, 'loggedUser']);
     Route::post('/logout', [UserController::class, 'logout']);
     Route::post('/send-email-verification', [UserController::class, 'sendRegisterEmail']);
-    
+
     Route::post('/loggedusers', [PersonalAccessTokenController::class, 'getTokens']);
     Route::post('/organ-agreement-form', [OrganDonationController::class, 'getAgreementForm']);
     Route::post('/add-organ-donation', [OrganDonationController::class, 'create']);
     Route::post('/donate-organ', [OrganDonationController::class, 'donateOrgan']);
-    
+
+    Route::post('/add-blood-donation', [BloodDonationController::class, 'create']);
+
     Route::post('/register-informer', [InformerController::class, 'create']);
-    
+
     Route::post('/create/post', [PostController::class, 'createPost']);
     Route::post('/close/post', [PostController::class, 'closePost']);
     Route::post('/approve/post', [PostController::class, 'approvePost']);
@@ -94,7 +97,4 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/like', [LikeController::class, 'like']);
 
     Route::post('/shared', [ShareController::class, 'share']);
-
-    
-    
 });
