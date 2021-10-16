@@ -21,7 +21,7 @@ class BloodDonationController extends Controller
 
         $post = Post::create([
             'user_id' => $user->id,
-            'title' => 'Blood donation (' . $request['bloodGroup'] . ')',
+            'title' => 'Blood Donation (' . $request['bloodGroup'] . ')',
             'body' => $postBody,
             'status' => 'pending',
             'category' => 'blood donation'

@@ -80,6 +80,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('/add-blood-donation', [BloodDonationController::class, 'create']);
 
+    Route::post('/add-body-donation', [OrganDonationController::class, 'createBodyDonation']);
+
     Route::post('/register-informer', [InformerController::class, 'create']);
 
     Route::post('/create/post', [PostController::class, 'createPost']);

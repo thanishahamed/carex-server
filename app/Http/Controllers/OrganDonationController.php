@@ -13,35 +13,38 @@ use Illuminate\Support\Facades\Mail;
 
 class OrganDonationController extends Controller
 {
-    public function organDonationInfo($id) {
+    public function organDonationInfo($id)
+    {
         $organDonation = OrganDonation::findOrFail($id);
         $organDonation->organs;
 
         return $organDonation;
     }
 
-    public function getAgreementForm() {
-        return response()->file(public_path('/downloadable/'.'organDonation.pdf'), [
+    public function getAgreementForm()
+    {
+        return response()->file(public_path('/downloadable/' . 'organDonation.pdf'), [
             'Content-Type' => 'application/pdf',
         ]);
     }
 
-    public function create(Request $request) {
-        
+    public function create(Request $request)
+    {
+
         $inputs = $request->validate([
             'agreementForm' => 'required|file',
             'hospitalForm' => 'required|file',
             'bloodGroup' => 'required|string',
             'aditionalNumber' => 'required|string'
 
-          ]);
+        ]);
 
-        $organDonation = Post::select('*')->where('category','organ donation')->where('id', auth()->user()->id)->get();
+        $organDonation = Post::select('*')->where('category', 'organ donation')->where('id', auth()->user()->id)->get();
 
-        if(count($organDonation) > 0) {
+        if (count($organDonation) > 0) {
             return response([
                 'errors' => ['duplicate Entry' => array('You have already registered to organ donation')]
-            ],422);
+            ], 422);
         }
 
         $user = auth()->user();
@@ -60,48 +63,47 @@ class OrganDonationController extends Controller
         $request->eyeTissues == "true" ? array_push($after_death, 'Eye Tissues') : '';
         $request->heartValves == "true" ? array_push($after_death, 'Heart Valves') : '';
         $request->boneTissue == "true" ? array_push($after_death, 'Bone Tissue') : '';
-        
+
         $request->alive_kidney == "true" ? array_push($alive, '1 Kidney') : '';
         $request->alive_partOfTheLiver == "true" ? array_push($alive, 'Part of the liver') : '';
         $request->alive_partOfTheLungs == "true" ? array_push($alive, 'Part of the lungs') : '';
         $request->alive_stemCells == "true" ? array_push($alive, 'Part of stem cells') : '';
         $request->alive_boneMarrow == "true" ? array_push($alive, 'Part of bone marrow') : '';
-        
-        foreach ($after_death as $organ) {
-            $after_death_organs = $after_death_organs."\n - ".$organ;
-        }
-        
-        foreach ($alive as $organ) {
-            $alive_organs = $alive_organs."\n - ".$organ;
-        }
-        
-        if(count($alive) > 0 || count($after_death) > 0) {
 
-        }else{
+        foreach ($after_death as $organ) {
+            $after_death_organs = $after_death_organs . "\n - " . $organ;
+        }
+
+        foreach ($alive as $organ) {
+            $alive_organs = $alive_organs . "\n - " . $organ;
+        }
+
+        if (count($alive) > 0 || count($after_death) > 0) {
+        } else {
             return response([
                 'errors' => ['organ' => array('You need to select at least one organ to donate')]
-            ],422);
+            ], 422);
         }
         $postBody = 'I like to donate my organs for the needed people. Please contact me for more information.';
-        $postBody = $postBody.$after_death_organs.$alive_organs;
+        $postBody = $postBody . $after_death_organs . $alive_organs;
 
         $post = Post::create([
             'user_id' => $user->id,
-            'title' => 'Interested in donating organs ('.$request['bloodGroup'].')',
+            'title' => 'Interested in donating organs (' . $request['bloodGroup'] . ')',
             'body' => $postBody,
             'status' => 'pending',
             'category' => 'organ donation'
         ]);
         $agreement = $request->agreementForm;
         $agreementName = $agreement->getClientOriginalName();
-        $agreementFileName = time()."_".$agreementName;
-        $agreementFilePath = asset('/images/'.$agreementFileName);
+        $agreementFileName = time() . "_" . $agreementName;
+        $agreementFilePath = asset('/images/' . $agreementFileName);
         $agreement->move('images', $agreementFileName);
 
         $hostpitalForm = $request->hospitalForm;
         $hostpitalFormName = $hostpitalForm->getClientOriginalName();
-        $hostpitalFormFileName = time()."_".$hostpitalFormName;
-        $hostpitalFormFilePath = asset('/images/'.$hostpitalFormFileName);
+        $hostpitalFormFileName = time() . "_" . $hostpitalFormName;
+        $hostpitalFormFilePath = asset('/images/' . $hostpitalFormFileName);
         $hostpitalForm->move('images', $hostpitalFormFileName);
 
         $organ_donation = OrganDonation::create([
@@ -118,8 +120,8 @@ class OrganDonationController extends Controller
             'additional_tests' => '1',
         ]);
 
-        
-        foreach($after_death as $organ) {
+
+        foreach ($after_death as $organ) {
             Organ::create([
                 'organ_donation_id' => $organ_donation->id,
                 'user_id' => $user->id,
@@ -138,7 +140,7 @@ class OrganDonationController extends Controller
             ]);
         }
 
-        foreach($alive as $organ) {
+        foreach ($alive as $organ) {
             Organ::create([
                 'organ_donation_id' => 1, //$organ_donation->id,
                 'user_id' => $user->id,
@@ -156,11 +158,69 @@ class OrganDonationController extends Controller
                 'additional_tests' => 1,
             ]);
         }
-        
+
         return response($post);
     }
 
-    public function updateAvailability(Request $request) {
+    public function createBodyDonation(Request $request)
+    {
+        $inputs = $request->validate([
+            'agreementForm' => 'required|file',
+            'hospitalForm' => 'required|file',
+            'bloodGroup' => 'required|string',
+            'aditionalNumber' => 'required|string'
+        ]);
+
+        $organDonation = Post::select('*')->where('category', 'body donation')->where('id', auth()->user()->id)->get();
+
+        if (count($organDonation) > 0) {
+            return response([
+                'errors' => ['duplicate Entry' => array('You have already registered to body donation')]
+            ], 422);
+        }
+
+        $user = auth()->user();
+
+        $postBody = 'I like to donate my body after death for medical students and researches. Please contact me for more information.';
+
+        $post = Post::create([
+            'user_id' => $user->id,
+            'title' => 'Body Donation',
+            'body' => $postBody,
+            'status' => 'pending',
+            'category' => 'body donation'
+        ]);
+        $agreement = $request->agreementForm;
+        $agreementName = $agreement->getClientOriginalName();
+        $agreementFileName = time() . "_" . $agreementName;
+        $agreementFilePath = asset('/images/' . $agreementFileName);
+        $agreement->move('images', $agreementFileName);
+
+        $hostpitalForm = $request->hospitalForm;
+        $hostpitalFormName = $hostpitalForm->getClientOriginalName();
+        $hostpitalFormFileName = time() . "_" . $hostpitalFormName;
+        $hostpitalFormFilePath = asset('/images/' . $hostpitalFormFileName);
+        $hostpitalForm->move('images', $hostpitalFormFileName);
+
+        $organ_donation = OrganDonation::create([
+            'post_id' => $post->id,
+            'additional_contact' => $request->aditionalNumber,
+            'blood_group' => $request->bloodGroup,
+            'description' => 'none',
+            'status' => 'pending',
+            'method' => 'body',
+            'agreement_link' => $agreementFilePath,
+            'agreement_accepted' => 1,
+            'hospital_certificate_link' => $hostpitalFormFilePath,
+            'hide_identity' => $request['hideIdentity'] == "true" ? 1 : 0,
+            'additional_tests' => '1',
+        ]);
+
+        return response($post);
+    }
+
+    public function updateAvailability(Request $request)
+    {
         $inputs = $request->validate([
             'description' => 'required|string',
             'informer_proof_certificate' => 'required|file',
@@ -170,13 +230,13 @@ class OrganDonationController extends Controller
 
         $donation = OrganDonation::findOrFail($request['organ_id']);
 
-        
+
         $informer_proof_certificate = $request->informer_proof_certificate;
         $informer_proof_certificate_name = $informer_proof_certificate->getClientOriginalName();
-        $informer_proof_certificate_file_name = time()."_".$informer_proof_certificate_name;
-        $informer_proof_certificate_path = asset('/images/'.$informer_proof_certificate_file_name);
+        $informer_proof_certificate_file_name = time() . "_" . $informer_proof_certificate_name;
+        $informer_proof_certificate_path = asset('/images/' . $informer_proof_certificate_file_name);
         $informer_proof_certificate->move('images', $informer_proof_certificate_file_name);
-        
+
         $donation->informer_id = $request['informer_id'];
         $donation->informed_on = $request['informed_on'];
         $donation->informer_proof_certificate = $informer_proof_certificate_path;
@@ -188,29 +248,30 @@ class OrganDonationController extends Controller
 
         $post->status = "informed";
         $post->update();
-        
+
         $enc = Crypt::encryptString($post->id);
 
         $externs = User::select('*')->where('role', 'extern')->orWhere('role', 'admin')->get();
 
-        foreach($externs as $extern) {
+        foreach ($externs as $extern) {
             $data = [
                 "name" => $extern->name,
-                "link" => env('FRONT_END')."approve-donation-for-public/".$enc."/".Crypt::encryptString($extern->id),
+                "link" => env('FRONT_END') . "approve-donation-for-public/" . $enc . "/" . Crypt::encryptString($extern->id),
                 "email" => $extern->email
             ];
-        
-            Mail::send('informer.informerInform', $data, function($message) use ($data) {
+
+            Mail::send('informer.informerInform', $data, function ($message) use ($data) {
                 $message->to($data['email'], $data['name'])->subject('Organ Donation Informed!');
             });
         }
-        
-        
+
+
 
         return response($externs);
     }
 
-    public function checkPostRecord(Request $request, $id, $userId) {
+    public function checkPostRecord(Request $request, $id, $userId)
+    {
         $dec = Crypt::decryptString($id);
         $uId = Crypt::decryptString($userId);
         $user = User::findOrFail($uId);
@@ -221,10 +282,11 @@ class OrganDonationController extends Controller
             'organDonation' => $organ_donation[0],
             'post' => $post,
             'user' => $user
-        ],200);
+        ], 200);
     }
 
-    public function approveOrganDonation(Request $request) {
+    public function approveOrganDonation(Request $request)
+    {
 
         // if($request->organDonation['status'] === 'available') {
         //     return response("You can't make a service availble for mulitiple times.");
@@ -241,27 +303,28 @@ class OrganDonationController extends Controller
 
         $organs = Organ::select('*')->where('organ_donation_id', $organ_donation->id)->get();
 
-        foreach($organs as $organ) {
+        foreach ($organs as $organ) {
             $o = Organ::findOrFail($organ->id);
             $o->status = "available";
             $o->update();
         }
 
-        foreach($users as $user) {
+        foreach ($users as $user) {
             $data = [
                 "name" => $user->name,
-                "link" => env('FRONT_END')."services/explore/service/".$post->id,
+                "link" => env('FRONT_END') . "services/explore/service/" . $post->id,
                 "email" => $user->email
             ];
-        
-            Mail::send('organ.available', $data, function($message) use ($data) {
+
+            Mail::send('organ.available', $data, function ($message) use ($data) {
                 $message->to($data['email'], $data['name'])->subject('Organ Donation Available!');
             });
         }
         return response($post);
     }
 
-    public function donateOrgan(Request $request) {
+    public function donateOrgan(Request $request)
+    {
         $organ = Organ::findOrFail($request->organId);
 
         $organ->transplanted_to = $request->data['service']['name'];
