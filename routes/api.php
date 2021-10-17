@@ -14,9 +14,11 @@ use App\Http\Controllers\PersonalAccessTokenController;
 use App\Http\Controllers\PostServiceRequestByPeopleController;
 use App\Http\Controllers\FundController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\EducationFundController;
 use App\Http\Controllers\ShareController;
 use App\Http\Controllers\ViewController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\ServiceRequestController;
 use App\Models\BloodDonation;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -81,6 +83,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/add-blood-donation', [BloodDonationController::class, 'create']);
 
     Route::post('/add-body-donation', [OrganDonationController::class, 'createBodyDonation']);
+
+    Route::post('/add-student-fund', [EducationFundController::class, 'create']);
+
+    Route::post('/add-new-service-request', [ServiceRequestController::class, 'create']);
 
     Route::post('/register-informer', [InformerController::class, 'create']);
 

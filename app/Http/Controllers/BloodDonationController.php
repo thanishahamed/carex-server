@@ -17,7 +17,7 @@ class BloodDonationController extends Controller
         ]);
 
         $user = auth()->user();
-        $postBody = 'I like to donate blood for the needed people. Please contact me for more information.';
+        $postBody = "I like to donate blood for the needed people. \nPlease contact me for more information.";
 
         $post = Post::create([
             'user_id' => $user->id,

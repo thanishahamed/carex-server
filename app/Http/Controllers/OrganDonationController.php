@@ -181,7 +181,7 @@ class OrganDonationController extends Controller
 
         $user = auth()->user();
 
-        $postBody = 'I like to donate my body after death for medical students and researches. Please contact me for more information.';
+        $postBody = "I like to donate my body after death for medical students and researches. \nPlease contact me for more information.";
 
         $post = Post::create([
             'user_id' => $user->id,
