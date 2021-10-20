@@ -111,4 +111,11 @@ class InformerController extends Controller
       'user' => $user
     ], 200);
   }
+
+  public function destroy(Informer $informer)
+  {
+    $informer->delete();
+
+    return $informer;
+  }
 }

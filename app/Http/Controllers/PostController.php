@@ -13,8 +13,9 @@ use App\Models\User;
 
 class PostController extends Controller
 {
-    
-    public function getPostInfo(Request $request, $id) {
+
+    public function getPostInfo(Request $request, $id)
+    {
         $post = Post::findOrFail($id);
         $post->images;
         // $post->comments;
@@ -38,7 +39,7 @@ class PostController extends Controller
 
         $commentsWithUsers = array();
         $comments = $post->comments;
-        foreach($comments as $com) {
+        foreach ($comments as $com) {
             $user = User::findOrFail($com->user_id);
             array_push($commentsWithUsers, ['user' => $user, 'comment' => $com]);
         }
@@ -48,7 +49,8 @@ class PostController extends Controller
         return $post;
     }
 
-    public function getAllPosts() {
+    public function getAllPosts()
+    {
         $posts = Post::select('*')->orderByDesc('id')->get();
         $available = Post::select('*')->where('status', 'available')->orderByDesc('id')->get();
 
@@ -73,7 +75,8 @@ class PostController extends Controller
         ]);
     }
 
-    public function createPost(Request $request) {
+    public function createPost(Request $request)
+    {
         $inputs = $request->validate([
             'title' => 'required|string',
             'body' => 'required|string'
@@ -90,17 +93,27 @@ class PostController extends Controller
         $num = 0;
         $files = array();
 
-        if($request['image0']) { array_push($files, $request['image0']); }
-        if($request['image1']) { array_push($files, $request['image1']); }
-        if($request['image2']) { array_push($files, $request['image2']); }
-        if($request['image3']) { array_push($files, $request['image3']); }
-        if($request['image4']) { array_push($files, $request['image4']); }
-        
-        foreach($files as $file) {
+        if ($request['image0']) {
+            array_push($files, $request['image0']);
+        }
+        if ($request['image1']) {
+            array_push($files, $request['image1']);
+        }
+        if ($request['image2']) {
+            array_push($files, $request['image2']);
+        }
+        if ($request['image3']) {
+            array_push($files, $request['image3']);
+        }
+        if ($request['image4']) {
+            array_push($files, $request['image4']);
+        }
+
+        foreach ($files as $file) {
             $upload = $file;
             $uploadName = $upload->getClientOriginalName();
-            $uploadFileName = time()."_".$uploadName;
-            $uploadFilePath = asset('/images/'.$uploadFileName);
+            $uploadFileName = time() . "_" . $uploadName;
+            $uploadFilePath = asset('/images/' . $uploadFileName);
             $upload->move('images', $uploadFileName);
 
             $image = PostImage::create([
@@ -108,11 +121,12 @@ class PostController extends Controller
                 'url' => $uploadFilePath
             ]);
         }
-        
+
         return response($post);
     }
 
-    public function closePost(Request $request) {
+    public function closePost(Request $request)
+    {
         $post = Post::findOrFail($request['post_id']);
         $post->status = "closed";
         $post->update();
@@ -120,14 +134,15 @@ class PostController extends Controller
         return response($post);
     }
 
-    public function approvePost(Request $request) {
+    public function approvePost(Request $request)
+    {
         $user = auth()->user();
 
         $approval = '';
-        if($request['status'] === "approved") {
+        if ($request['status'] === "approved") {
             $approval = Approval::create([
-                'user_id'=>$user->id,
-                'post_id'=>$request['postId'],
+                'user_id' => $user->id,
+                'post_id' => $request['postId'],
                 'approved' => '1'
             ]);
         }
@@ -139,7 +154,13 @@ class PostController extends Controller
         return response([
             'approval' => $approval,
             'post' => $post
-        ],200);
+        ], 200);
     }
 
+    public function destroy(Post $post)
+    {
+        $post->delete();
+
+        return $post;
+    }
 }

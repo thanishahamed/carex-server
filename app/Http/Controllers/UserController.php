@@ -11,186 +11,199 @@ use App\Models\User;
 
 class UserController extends Controller
 {
-    public function index()
-    {
-        $user = User::select('*')->orderByDesc('id')->get();
-        return response($user);
+  public function index()
+  {
+    $user = User::select('*')->orderByDesc('id')->get();
+    return response($user);
+  }
+
+  public function store(Request $request)
+  {
+    //Register user
+    $inputs = $request->validate([
+      'firstName' => 'required|string|max:255',
+      'lastName' => 'required|string|max:255',
+      'nic' => 'required|string|min:10|max:12|unique:users,nic',
+      'mobile' => 'required|string|min:11',
+      'dob' => 'required|date',
+      'gender' => 'required|string',
+      'address' => 'required|string|max:255',
+      'email' => 'required|string|email:rfc,dns|unique:users,email',
+      'password' => 'required|string|min:8|confirmed',
+      'role' => 'required|string'
+    ]);
+
+    $user = User::create([
+      'name' => $inputs['firstName'] . " " . $inputs['lastName'],
+      'f_name' => $inputs['firstName'],
+      'l_name' => $inputs['lastName'],
+      'email' => $inputs['email'],
+      'telephone' => $inputs['mobile'],
+      'address' => $inputs['address'],
+      'status' => 'Active',
+      'dob' => $inputs['dob'],
+      'nic' => $inputs['nic'],
+      'gender' => $inputs['gender'],
+      'password' => bcrypt($inputs['password']),
+      'role' => $inputs['role']
+    ]);
+
+    $token = $user->createToken('myapptoken')->plainTextToken;
+
+    $response = [
+      "message" => "Registration Successfull!",
+      "user" => $user,
+      "token" => $token
+    ];
+
+    return response($response, 201);
+  }
+
+  public function login(Request $request)
+  {
+    $inputs = $request->validate([
+      'email' => 'required|string',
+      'password' => 'required|string',
+    ]);
+
+    //checking the email
+    $user = User::where('email', $inputs['email'])->first();
+
+    if (!$user || !Hash::check($inputs['password'], $user->password)) {
+      return response([
+        'message' => 'Login failed! Please use your correct email and password'
+      ], 401);
     }
 
-    public function store(Request $request)
-    {
-        //Register user
-        $inputs = $request->validate([
-          'firstName' => 'required|string|max:255',
-          'lastName' => 'required|string|max:255',
-          'nic' => 'required|string|min:10|max:12|unique:users,nic',
-          'mobile' => 'required|string|min:11',
-          'dob' => 'required|date',
-          'gender' => 'required|string',
-          'address' => 'required|string|max:255',
-          'email' => 'required|string|email:rfc,dns|unique:users,email',
-          'password' => 'required|string|min:8|confirmed',
-          'role' => 'required|string'
-        ]);
-
-        $user = User::create([
-          'name' => $inputs['firstName'] . " " . $inputs['lastName'],
-          'f_name' => $inputs['firstName'],
-          'l_name' => $inputs['lastName'],
-          'email' => $inputs['email'],
-          'telephone' => $inputs['mobile'],
-          'address' => $inputs['address'],
-          'status' => 'Active',
-          'dob' => $inputs['dob'],
-          'nic' => $inputs['nic'],
-          'gender' => $inputs['gender'],
-          'password' => bcrypt($inputs['password']),
-          'role' => $inputs['role']
-        ]);
-
-        $token = $user->createToken('myapptoken')->plainTextToken;
-
-        $response = [
-          "message" => "Registration Successfull!",
-          "user" => $user,
-          "token" => $token
-        ];
-
-        return response($response, 201);
+    if ($user->status != 'Active') {
+      return response([
+        'message' => 'Sorry ' . $user->name . '! Your account has been suspended'
+      ], 203);
     }
 
-    public function login(Request $request) {
-        $inputs = $request->validate([
-          'email' => 'required|string',
-          'password' => 'required|string',
-        ]);
+    $token = $user->createToken('myapptoken')->plainTextToken;
 
-        //checking the email
-        $user = User::where('email', $inputs['email'])->first();
+    $response = [
+      "message" => "success",
+      'user' => $user,
+      'token' => $token
+    ];
+    return response($response, 200);
+  }
+  public function logout()
+  {
+    auth()->user()->tokens()->delete();
 
-        if(!$user || !Hash::check($inputs['password'], $user->password)) {
-            return response([
-              'message' => 'Login failed! Please use your correct email and password'
-            ], 401);
-        }
+    return [
+      'message' => 'Logged out!'
+    ];
+  }
 
-        if($user->status != 'Active'){
-          return response([
-            'message' => 'Sorry '.$user->name.'! Your account has been suspended'
-          ], 203);
-        }
-        
-        $token = $user->createToken('myapptoken')->plainTextToken;
+  public function sendRegisterEmail(Request $request)
+  {
+    $data = [
+      "name" => $request['name'],
+      "link" => env('FRONT_END') . "verify-email/" . Crypt::encryptString($request['id']),
+      "email" => $request['email']
+    ];
 
-        $response = [
-          "message"=>"success",
-          'user' => $user,
-          'token' => $token
-        ];
-        return response($response, 200);
+    Mail::send('email.register', $data, function ($message) use ($data) {
+      $message->to($data['email'], $data['name'])->subject('Registration Successfull!');
+    });
+
+    return response('Email Sent', 200);
+  }
+
+  public function loggedUser(Request $request)
+  {
+
+    $realUser = auth()->user();
+    $user = User::findOrFail($realUser->id);
+
+    $user->feedbacks;
+    $user->posts;
+    $user->comments;
+    $user->servicesRecieved;
+    $user->informers;
+    $user->service_requests;
+
+    return response($user);
+  }
+
+  public function verifyEmail(Request $request)
+  {
+    $dec = Crypt::decryptString($request['id']);
+    $user = User::findOrFail($dec);
+
+    if ($user->email_verified_at) {
+      return response('Already Verified');
+    } else {
+      $user->email_verified_at = $request['time'];
+      $user->save();
+      return response('Verification Successful!');
     }
-    public function logout()
-    {
-        auth()->user()->tokens()->delete();
+  }
 
-        return [
-          'message' => 'Logged out!'
-        ];
-    }
+  public function getPosts($id)
+  {
+    $user = User::findOrFail($id);
+    $user->posts;
+    $user->comments;
+    return $user;
+  }
 
-    public function sendRegisterEmail(Request $request) {
-      $data = [
-        "name" => $request['name'],
-        "link" => env('FRONT_END')."verify-email/".Crypt::encryptString($request['id']),
-        "email" => $request['email']
-      ];
+  public function userInfo($id)
+  {
+    $user = User::findOrFail($id);
 
-      Mail::send('email.register', $data, function($message) use ($data) {
-        $message->to($data['email'], $data['name'])->subject('Registration Successfull!');
-      });
+    $user->feedbacks;
+    $user->posts;
+    $user->comments;
+    $user->servicesRecieved;
+    $user->informers;
+    $user->service_requests;
 
-      return response('Email Sent', 200);
-    }
+    return $user;
+  }
 
-    public function loggedUser(Request $request) {
+  public function updateUser(Request $request, $id)
+  {
 
-      $realUser = auth()->user();
-      $user = User::findOrFail($realUser->id);
+    $inputs = $request->validate([
+      'f_name' => 'required|string|max:255',
+      'l_name' => 'required|string|max:255',
+      'nic' => 'required|string|min:10|max:12',
+      'telephone' => 'required|string|min:11',
+      'dob' => 'required|date',
+      'gender' => 'required|string',
+      'address' => 'required|string|max:255',
+      'email' => 'required|string|email:rfc,dns',
+      'role' => 'required|string'
+    ]);
 
-      $user->feedbacks;
-      $user->posts;
-      $user->comments;
-      $user->servicesRecieved;
-      $user->informers;
-      $user->service_requests;
+    $user = User::findOrFail($id);
+    $user->role = $request->role;
+    $user->status = $request->status;
+    $user->name = $request->name;
+    $user->f_name = $request->f_name;
+    $user->l_name = $request->l_name;
+    $user->description = $request->description;
+    $user->email = $request->email;
+    $user->telephone = $request->telephone;
+    $user->address = $request->address;
+    $user->dob = $request->dob;
+    $user->gender = $request->gender;
+    $user->nic = $request->nic;
 
-      return response($user);
-    }
-   
-    public function verifyEmail(Request $request) {
-      $dec = Crypt::decryptString($request['id']);
-      $user = User::findOrFail($dec);
+    $user->update();
 
-      if($user->email_verified_at) { 
-        return response('Already Verified'); 
-      }else{
-        $user->email_verified_at = $request['time'];
-        $user->save();
-        return response('Verification Successful!');
-      }
+    return response($user);
+  }
 
-    }
-
-    public function getPosts($id) {
-      $user = User::findOrFail($id);
-      $user->posts;
-      $user->comments;
-      return $user;
-    }
-
-    public function userInfo($id) {
-      $user = User::findOrFail($id);
-
-      $user->feedbacks;
-      $user->posts;
-      $user->comments;
-      $user->servicesRecieved;
-      $user->informers;
-      $user->service_requests;
-
-      return $user;
-    }
-
-    public function updateUser(Request $request, $id) {
-      
-      $inputs = $request->validate([
-        'f_name' => 'required|string|max:255',
-        'l_name' => 'required|string|max:255',
-        'nic' => 'required|string|min:10|max:12',
-        'telephone' => 'required|string|min:11',
-        'dob' => 'required|date',
-        'gender' => 'required|string',
-        'address' => 'required|string|max:255',
-        'email' => 'required|string|email:rfc,dns',
-        'role' => 'required|string'
-      ]);
-      
-      $user = User::findOrFail($id);
-      $user->role = $request->role;
-      $user->status = $request->status;
-      $user->name = $request->name;
-      $user->f_name = $request->f_name;
-      $user->l_name = $request->l_name;
-      $user->description = $request->description;
-      $user->email = $request->email;
-      $user->telephone = $request->telephone;
-      $user->address = $request->address;
-      $user->dob = $request->dob;
-      $user->gender = $request->gender;
-      $user->nic = $request->nic;
-
-      $user->update();
-
-      return response($user);
-    }
+  public function destroy(User $user)
+  {
+    $this->logout();
+    $user->delete();
+    return $user;
+  }
 }

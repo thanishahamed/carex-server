@@ -23,7 +23,7 @@ class BloodDonationController extends Controller
             'user_id' => $user->id,
             'title' => 'Blood Donation (' . $request['bloodGroup'] . ')',
             'body' => $postBody,
-            'status' => 'pending',
+            'status' => 'pending verification',
             'category' => 'blood donation'
         ]);
 
@@ -32,7 +32,7 @@ class BloodDonationController extends Controller
             'blood_group' => $request->bloodGroup,
             'description' => $request->description,
             'agreement_accepted' => 1,
-            'status' => 'pending',
+            'status' => 'pending verification',
             'last_donated' => $request->lastDonated,
             'additional_contact' => $request->aditionalNumber,
             'hide_identity' => $request['hideIdentity'] == "true" ? 1 : 0,

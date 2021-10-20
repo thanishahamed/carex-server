@@ -127,7 +127,7 @@ class OrganDonationController extends Controller
                 'user_id' => $user->id,
                 'alive_death' => 'death',
                 'organ_name' => $organ,
-                'status' => 'pending',
+                'status' => 'pending verification',
                 'transplanted_to' => '',
                 'received_address' => '',
                 'description' => '',
@@ -146,7 +146,7 @@ class OrganDonationController extends Controller
                 'user_id' => $user->id,
                 'alive_death' => 'alive',
                 'organ_name' => $organ,
-                'status' => 'pending',
+                'status' => 'pending verification',
                 'transplanted_to' => '',
                 'received_address' => '',
                 'description' => '',
@@ -187,7 +187,7 @@ class OrganDonationController extends Controller
             'user_id' => $user->id,
             'title' => 'Body Donation',
             'body' => $postBody,
-            'status' => 'pending',
+            'status' => 'pending verification',
             'category' => 'body donation'
         ]);
         $agreement = $request->agreementForm;
@@ -207,7 +207,7 @@ class OrganDonationController extends Controller
             'additional_contact' => $request->aditionalNumber,
             'blood_group' => $request->bloodGroup,
             'description' => 'none',
-            'status' => 'pending',
+            'status' => 'pending verification',
             'method' => 'body',
             'agreement_link' => $agreementFilePath,
             'agreement_accepted' => 1,

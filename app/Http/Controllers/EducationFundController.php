@@ -22,7 +22,7 @@ class EducationFundController extends Controller
             'user_id' => $user->id,
             'title' => 'Funds for students',
             'body' => $postBody,
-            'status' => 'pending',
+            'status' => 'pending verification',
             'category' => 'study fund'
         ]);
 
@@ -31,7 +31,7 @@ class EducationFundController extends Controller
             'blood_group' => $request->bloodGroup,
             'description' => $request->description,
             'agreement_accepted' => 1,
-            'status' => 'pending',
+            'status' => 'pending verification',
             'last_donated' => $request->lastDonated,
             'additional_contact' => $request->aditionalNumber,
             'hide_identity' => $request['hideIdentity'] == "true" ? 1 : 0,

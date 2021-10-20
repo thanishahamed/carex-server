@@ -18,6 +18,7 @@ use App\Http\Controllers\EducationFundController;
 use App\Http\Controllers\ShareController;
 use App\Http\Controllers\ViewController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\ScholarshipController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Models\BloodDonation;
 
@@ -74,6 +75,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/verified-user', [UserController::class, 'loggedUser']);
     Route::post('/logout', [UserController::class, 'logout']);
     Route::post('/send-email-verification', [UserController::class, 'sendRegisterEmail']);
+    Route::delete('/destroy-user/{user}', [UserController::class, 'destroy']);
 
     Route::post('/loggedusers', [PersonalAccessTokenController::class, 'getTokens']);
     Route::post('/organ-agreement-form', [OrganDonationController::class, 'getAgreementForm']);
@@ -88,11 +90,15 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('/add-new-service-request', [ServiceRequestController::class, 'create']);
 
+    Route::post('/add-scholarship', [ScholarshipController::class, 'create']);
+
     Route::post('/register-informer', [InformerController::class, 'create']);
+    Route::delete('/destroy-informer/{informer}', [InformerController::class, 'destroy']);
 
     Route::post('/create/post', [PostController::class, 'createPost']);
     Route::post('/close/post', [PostController::class, 'closePost']);
     Route::post('/approve/post', [PostController::class, 'approvePost']);
+    Route::delete('/destroy-post/{post}', [PostController::class, 'destroy']);
 
     Route::post('/create/request', [PostServiceRequestByPeopleController::class, 'createRequest']);
     Route::post('/findRequestInfo', [PostServiceRequestByPeopleController::class, 'findRequestInfo']);
