@@ -94,6 +94,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('/register-informer', [InformerController::class, 'create']);
     Route::delete('/destroy-informer/{informer}', [InformerController::class, 'destroy']);
+    Route::post('/informer/{informer}', [InformerController::class, 'index']);
+    Route::post('/update/informer', [InformerController::class, 'update']);
 
     Route::post('/create/post', [PostController::class, 'createPost']);
     Route::post('/close/post', [PostController::class, 'closePost']);

@@ -8,13 +8,14 @@ use App\Models\User;
 
 class PersonalAccessTokenController extends Controller
 {
-    public function getTokens() {
+    public function getTokens()
+    {
         $tokens = PersonalAccessToken::all();
         $tokensFinal = array();
-       
-        foreach ($tokens as $token) {   
+
+        foreach ($tokens as $token) {
             $user = User::findOrFail($token->tokenable_id);
-            array_push($tokensFinal, [ 
+            array_push($tokensFinal, [
                 'id' => $token->id,
                 'token_id' => $token->tokenable_id,
                 'name' => $user->name,

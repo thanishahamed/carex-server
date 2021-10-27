@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Hash;
 
 class InformerController extends Controller
 {
+  public function index(Informer $informer)
+  {
+    return $informer;
+  }
+
   public function create(Request $request)
   {
     $inputs = $request->validate([
@@ -36,6 +41,36 @@ class InformerController extends Controller
       'gender' => $inputs['gender'],
       'password' => bcrypt($inputs['password']),
     ]);
+    return response($informer);
+  }
+
+  public function update(Request $request)
+  {
+    $inputs = $request->validate([
+      'fullName' => 'required|string|max:255',
+      'address' => 'required|string|max:255',
+      'nic' => 'required|string|min:10|max:12',
+      'telephone' => 'required|string|min:11',
+      'email' => 'required|string|email:rfc,dns',
+      'gender' => 'required|string',
+      'password' => 'required|string|min:8|confirmed',
+      'dob' => 'required|date'
+    ]);
+
+    $informer = Informer::findOrFail($request['id']);
+    $informer->user_id = auth()->user()->id;
+    $informer->full_name = $inputs['fullName'];
+    $informer->email = $inputs['email'];
+    $informer->telephone = $inputs['telephone'];
+    $informer->address = $inputs['address'];
+    $informer->status = 'Active';
+    $informer->dob = $inputs['dob'];
+    $informer->nic = $inputs['nic'];
+    $informer->gender = $inputs['gender'];
+    $informer->password = bcrypt($inputs['password']);
+
+    $informer->save();
+
     return response($informer);
   }
 
