@@ -49,4 +49,26 @@ class ScholarshipController extends Controller
             'scholarship' => $scholarship
         ], 201);
     }
+
+    public function update(Request $request)
+    {
+        $request->validate([
+            'no_of_scholarships' => 'required',
+            'worth_of_scholarship' => 'required',
+            'description' => 'required|string',
+            'additional_contact' => 'required|string',
+        ]);
+
+        $request->validate([
+            'description' => 'required|string',
+        ]);
+        $scholarship = Scholarship::findOrfail($request['id']);
+        $scholarship->description = $request['description'];
+        $scholarship->no_of_scholarships = $request['no_of_scholarships'];
+        $scholarship->worth_of_scholarship = $request['worth_of_scholarship'];
+        $scholarship->additional_contact = $request['additional_contact'];
+        $scholarship->save();
+
+        return response($scholarship);
+    }
 }

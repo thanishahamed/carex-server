@@ -206,4 +206,23 @@ class UserController extends Controller
     $user->delete();
     return $user;
   }
+
+  public function updateProfile(Request $request)
+  {
+    $user = User::findOrFail($request['id']);
+
+    $filepathname = "/" . explode("/", $user->profile_image)[3] . "/" . explode("/", $user->profile_image)[4];
+    unlink(public_path($filepathname));
+
+    $file = $request['file'];
+    $fileName = $file->getClientOriginalName();
+    $fileFileName = time() . "_" . $fileName;
+    $filePath = asset('/images/' . $fileFileName);
+    $file->move('images', $fileFileName);
+
+    $user->profile_image = $filePath;
+    $user->save();
+
+    return response($user);
+  }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Controllers\ScholarshipController;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
@@ -24,55 +25,74 @@ class Post extends Model
 
     protected $guarded = ['id'];
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function images() {
+    public function images()
+    {
         return $this->hasMany(PostImage::class);
     }
 
-    public function comments() {
+    public function comments()
+    {
         return $this->hasMany(Comment::class);
     }
 
-    public function views() {
+    public function views()
+    {
         return $this->hasMany(View::class);
     }
 
-    public function shares() {
+    public function shares()
+    {
         return $this->hasMany(Share::class);
     }
 
-    public function likes() {
+    public function likes()
+    {
         return $this->hasMany(Like::class);
     }
 
-    public function approvals() {
+    public function approvals()
+    {
         return $this->hasOne(Approval::class);
     }
 
-    public function services() {
+    public function services()
+    {
         return $this->hasMany(ReceivedService::class);
     }
 
-    public function blood_donation() {
+    public function blood_donation()
+    {
         return $this->hasOne(BloodDonation::class);
     }
 
-    public function organ_donation() {
+    public function organ_donation()
+    {
         return $this->hasOne(OrganDonation::class);
     }
 
-    public function education_fund() {
+    public function education_fund()
+    {
         return $this->hasOne(EducationFund::class);
     }
 
-    public function service_requests_by_people() {
+
+    public function scholarship()
+    {
+        return $this->hasOne(Scholarship::class);
+    }
+
+    public function service_requests_by_people()
+    {
         return $this->hasMany(PostServiceRequestByPeople::class);
     }
 
-    public function funds() {
+    public function funds()
+    {
         return $this->hasMany(Fund::class);
     }
 }

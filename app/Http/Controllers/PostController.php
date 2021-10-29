@@ -29,6 +29,7 @@ class PostController extends Controller
         $post->organ_donation;
         $post->education_fund;
         $post->service_requests_by_people;
+        $post->scholarship;
         // $comments = Comment::where('post_id', $id)->get();
 
         $liked = Like::where('post_id', $id)->where('user_id', $request['user_id'])->get();
@@ -162,5 +163,21 @@ class PostController extends Controller
         $post->delete();
 
         return $post;
+    }
+
+    public function update(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string',
+            'body' => 'required|string'
+        ]);
+        $post = Post::findOrfail($request['id']);
+
+        $post->title = $request['title'];
+        $post->body = $request['body'];
+
+        $post->save();
+
+        return response($post);
     }
 }

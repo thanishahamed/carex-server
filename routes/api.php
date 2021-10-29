@@ -74,6 +74,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/user/{id}', [UserController::class, 'updateUser']);
     Route::post('/verified-user', [UserController::class, 'loggedUser']);
     Route::post('/logout', [UserController::class, 'logout']);
+    Route::post('/update-profile-image', [UserController::class, 'updateProfile']);
+
     Route::post('/send-email-verification', [UserController::class, 'sendRegisterEmail']);
     Route::delete('/destroy-user/{user}', [UserController::class, 'destroy']);
 
@@ -91,6 +93,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/add-new-service-request', [ServiceRequestController::class, 'create']);
 
     Route::post('/add-scholarship', [ScholarshipController::class, 'create']);
+    Route::post('/update-scholarship', [ScholarshipController::class, 'update']);
 
     Route::post('/register-informer', [InformerController::class, 'create']);
     Route::delete('/destroy-informer/{informer}', [InformerController::class, 'destroy']);
@@ -101,6 +104,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/close/post', [PostController::class, 'closePost']);
     Route::post('/approve/post', [PostController::class, 'approvePost']);
     Route::delete('/destroy-post/{post}', [PostController::class, 'destroy']);
+    Route::post('/update-post', [PostController::class, 'update']);
 
     Route::post('/create/request', [PostServiceRequestByPeopleController::class, 'createRequest']);
     Route::post('/findRequestInfo', [PostServiceRequestByPeopleController::class, 'findRequestInfo']);
