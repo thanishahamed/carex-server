@@ -108,6 +108,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('/create/request', [PostServiceRequestByPeopleController::class, 'createRequest']);
     Route::post('/findRequestInfo', [PostServiceRequestByPeopleController::class, 'findRequestInfo']);
+    Route::post('/give-service', [PostServiceRequestByPeopleController::class, 'giveService']);
+    Route::post('/get-service-report', [PostServiceRequestByPeopleController::class, 'getReport']);
 
     Route::post('/get-all-funds', [FundController::class, 'getAllFunds']);
     Route::post('/get-all-funds-with-posts', [FundController::class, 'getAllFundsWithPosts']);
