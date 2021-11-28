@@ -21,7 +21,7 @@ class EducationFundController extends Controller
         $post = Post::create([
             'user_id' => $user->id,
             'title' => 'Funds for students',
-            'body' => $postBody,
+            'body' => $postBody . "\n\n" . $request->description,
             'status' => 'pending verification',
             'category' => 'study fund'
         ]);

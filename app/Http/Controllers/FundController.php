@@ -8,7 +8,8 @@ use App\Models\Post;
 
 class FundController extends Controller
 {
-    public function updateFunder(Request $request) {
+    public function updateFunder(Request $request)
+    {
         $fund = Fund::create([
             'post_id' => $request['post_id'],
             'user_id' => $request['user_id'],
@@ -23,12 +24,14 @@ class FundController extends Controller
         return response($fund);
     }
 
-    public function getAllFunds() {
+    public function getAllFunds()
+    {
         $funds = Fund::select('*')->orderByDesc('id')->get();
         return response($funds);
     }
 
-    public function getAllFundsWithPosts() {
+    public function getAllFundsWithPosts()
+    {
         $posts = Post::select('*')->orderByDesc('id')->get();
 
         $newPostFormat = [
@@ -40,12 +43,16 @@ class FundController extends Controller
             $postSingle = Post::findOrFail($post['id']);
             $postSingle->user;
             $singleFunds = $postSingle->funds;
-            foreach($singleFunds as $singleFund) {
-                $tot += number_format($singleFund['amount']);
+            foreach ($singleFunds as $singleFund) {
+                // $tot += number_format($singleFund['amount']);
+                if ($singleFund->status === "active") {
+                    $tot += $singleFund['amount'];
+                }
             }
             array_push($postWithTotalFunds, [
                 'id' => $postSingle->id,
                 'posted_by' => $postSingle->user->name,
+                'user_id' => $postSingle->user->id,
                 'category' => $postSingle->category,
                 'title' => $postSingle->title,
                 'amount' => $tot,

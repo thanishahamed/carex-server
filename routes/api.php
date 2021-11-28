@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BloodDonationController;
+use App\Http\Controllers\ChatRoomController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 // use Cartalyst\Stripe\Stripe;
@@ -18,9 +19,12 @@ use App\Http\Controllers\EducationFundController;
 use App\Http\Controllers\ShareController;
 use App\Http\Controllers\ViewController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\SaveFundedInfoController;
 use App\Http\Controllers\ScholarshipController;
 use App\Http\Controllers\ServiceRequestController;
 use App\Models\BloodDonation;
+use App\Models\ChatRoom;
+use App\Models\SaveFundedInfo;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -113,10 +117,18 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('/get-all-funds', [FundController::class, 'getAllFunds']);
     Route::post('/get-all-funds-with-posts', [FundController::class, 'getAllFundsWithPosts']);
+    //Save the recorded funds
+    Route::post('/save-funder-info', [SaveFundedInfoController::class, 'save_funded_info']);
+    Route::post('/download-funded-info', [SaveFundedInfoController::class, 'download_successfull_funds']);
+
+    Route::post('/addChatRoomUser', [ChatRoomController::class, 'store']);
+
 
     Route::post('/comment', [CommentController::class, 'create']);
 
     Route::post('/like', [LikeController::class, 'like']);
 
     Route::post('/shared', [ShareController::class, 'share']);
+
+    Route::post('/load-admin-dash-info', [UserController::class, 'adminDashboardContent']);
 });

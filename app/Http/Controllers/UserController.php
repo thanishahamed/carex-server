@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Feedback;
+use App\Models\Fund;
+use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
@@ -162,6 +165,7 @@ class UserController extends Controller
     $user->servicesRecieved;
     $user->informers;
     $user->service_requests;
+    $user->chatRoom;
 
     return $user;
   }
@@ -211,8 +215,10 @@ class UserController extends Controller
   {
     $user = User::findOrFail($request['id']);
 
-    $filepathname = "/" . explode("/", $user->profile_image)[3] . "/" . explode("/", $user->profile_image)[4];
-    unlink(public_path($filepathname));
+    if ($user->profile_image) {
+      $filepathname = "/" . explode("/", $user->profile_image)[3] . "/" . explode("/", $user->profile_image)[4];
+      unlink(public_path($filepathname));
+    }
 
     $file = $request['file'];
     $fileName = $file->getClientOriginalName();
@@ -224,5 +230,45 @@ class UserController extends Controller
     $user->save();
 
     return response($user);
+  }
+
+
+  public function adminDashboardContent()
+  {
+    $data = array();
+
+    $total_users = User::count();
+    $total_services = Post::count();
+    $total_feedbacks = Feedback::count();
+
+    $funds = Fund::all();
+    $total_funds_raised = 0;
+    $total_donations = 0;
+    $total_external_users = 0;
+
+    $users = User::all();
+    foreach ($users as $user) {
+      if ($user->role === 'extern') {
+        $total_external_users++;
+      }
+    }
+
+    foreach ($funds as $fund) {
+      $total_funds_raised += $fund->amount;
+
+      if ($fund->category === "care-x") {
+        $total_donations += $fund->amount;
+      }
+    }
+
+    $data = [
+      'total_users' => $total_users,
+      'total_services' => $total_services,
+      'total_funds_raised' => $total_funds_raised,
+      'total_donations' => $total_donations,
+      'total_external_users' => $total_external_users,
+      'total_feedbacks' => $total_feedbacks
+    ];
+    return $data;
   }
 }
